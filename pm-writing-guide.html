@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TRIARQ PM Writing Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #FAFAFA; color: #1a1a1a; padding: 32px 16px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+
+  h1 { font-size: 1.4rem; font-weight: 700; text-align: center; color: #111; }
+  .intro { text-align: center; font-size: 0.83rem; color: #6B7280; margin-top: 6px; margin-bottom: 32px; line-height: 1.6; }
+
+  /* Tab row */
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 0; }
+  .tab { border-radius: 12px 12px 0 0; padding: 16px 10px 20px; text-align: center; cursor: pointer; border: 2px solid #E5E7EB; border-bottom: none; background: white; transition: all 0.15s; position: relative; }
+  .tab.active { border-color: var(--c); background: var(--c); color: white; z-index: 2; }
+  .tab:not(.active):hover { background: #F3F4F6; }
+  .tab-icon { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+  .tab-name { font-size: 0.8rem; font-weight: 700; display: block; }
+  .tab-when { font-size: 0.65rem; margin-top: 4px; display: block; opacity: 0.75; }
+
+  /* Panel */
+  .panel { background: white; border: 2px solid var(--pc); border-radius: 0 0 16px 16px; padding: 28px; }
+
+  .one-liner { font-size: 0.85rem; font-style: italic; color: #374151; background: #F9FAFB; border-left: 4px solid var(--pc); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 24px; line-height: 1.6; }
+
+  .section-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #9CA3AF; margin-bottom: 12px; margin-top: 24px; }
+
+  .fields { display: flex; flex-direction: column; gap: 12px; }
+  .field { border: 1px solid #F0F0F0; border-radius: 8px; padding: 12px 14px; }
+  .field-label { font-size: 0.82rem; font-weight: 700; color: #111; margin-bottom: 3px; }
+  .field-hint { font-size: 0.75rem; color: #6B7280; line-height: 1.5; }
+  .field-ex { font-size: 0.71rem; color: #9CA3AF; font-style: italic; margin-top: 4px; }
+
+  .tip { border-radius: 10px; padding: 12px 16px; font-size: 0.78rem; line-height: 1.6; margin-top: 24px; }
+  .tip strong { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+  .relation { background: #F9FAFB; border-radius: 10px; padding: 12px 16px; font-size: 0.78rem; color: #4B5563; line-height: 1.6; margin-top: 12px; }
+  .relation strong { color: #111; }
+
+  .footer { text-align: center; font-size: 0.65rem; color: #C4C4C4; margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>What do I write, and what goes in it?</h1>
+  <p class="intro">Four documents. Each one builds on the last. Click any to see what goes inside.</p>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panel"></div>
+
+  <p class="footer">TRIARQ Health · PM Writing Guide · March 2026</p>
+</div>
+
+<script>
+const DOCS = [
+  {
+    icon:"✨", name:"One Pager", when:"Start here",
+    color:"#2563EB", light:"#DBEAFE",
+    oneLiner:"If someone reads only one thing, this is it. What are we doing, why does it matter, and what does success look like?",
+    fields:[
+      { label:"The problem", hint:"One short paragraph. What's broken, missing, or changing — and why it matters now. No history.", ex:"e.g. Our PA submissions don't meet the new CMS rules. Penalties start Q2." },
+      { label:"What we're doing about it", hint:"One short paragraph. The approach in plain language — not the technical detail, the direction.", ex:"e.g. We're adding a FHIR layer to our referral workflow so submissions are compliant." },
+      { label:"Who it affects", hint:"A short list. Whoever this touches — patients, payers, clinicians, engineers.", ex:"e.g. Referral coordinators, payer integrations team, 3 specific payers" },
+      { label:"What success looks like", hint:"Two or three measurable outcomes. Not goals — things you can actually check.", ex:"e.g. All PA requests validated against FHIR profiles in CI by June 2026" },
+      { label:"What we're NOT doing", hint:"One line. Prevents scope creep and saves you from defending things later.", ex:"e.g. Not touching retrospective PA requests or dental authorizations this cycle" },
+    ],
+    tip:"If you find yourself writing more than one page, you haven't finished thinking yet. Come back to it.",
+    relation:"Once this is solid, use it as the foundation for your Context Document. The One Pager is the summary — the Context Doc is where you put the detail behind it."
+  },
+  {
+    icon:"📦", name:"Context Doc", when:"Before analysis",
+    color:"#7C3AED", light:"#EDE9FE",
+    oneLiner:"Everything the team needs to understand the situation before they start. This is what you draw from throughout the work — not something you file away after kickoff.",
+    fields:[
+      { label:"What the stakeholder actually wants", hint:"Their words, not yours. Capture the intent before it gets filtered through interpretation.", ex:"e.g. 'We need to stop getting flagged in payer audits for missing documentation'" },
+      { label:"The scenarios", hint:"Primary (main workflow — must work perfectly), Secondary (real edge cases), Failure (ways this could break).", ex:"e.g. Primary: coordinator submits PA for a new referral. Failure: payer returns malformed FHIR response." },
+      { label:"Real examples and artifacts", hint:"Actual screenshots, documents, data extracts. Not descriptions of them — the things themselves.", ex:"e.g. 3 example PA submissions from last month. Current HL7 message format." },
+      { label:"What else might be affected", hint:"Systems, teams, workflows that could be impacted. Think wider than the obvious.", ex:"e.g. Billing cycle depends on PA approval status. Reporting dashboard pulls from submission logs." },
+      { label:"What's been tried before", hint:"Prior attempts and why they worked or didn't. Prevents the team from repeating history.", ex:"e.g. Vendor middleware evaluated 2024 — rejected due to BAA complexity." },
+      { label:"Known constraints", hint:"Technical, legal, organisational. Anything that limits the solution space.", ex:"e.g. Cannot introduce new PHI stores without compliance sign-off." },
+    ],
+    tip:"Update this document when surprises surface during the work, and again at close with what you learned.",
+    relation:"The Context Brief is a one-page synthesis of this document. You can't write a good Context Brief without a solid Context Doc behind it."
+  },
+  {
+    icon:"🧭", name:"Context Brief", when:"Before work starts",
+    color:"#059669", light:"#D1FAE5",
+    oneLiner:"Five short sections that prove the thinking is done and authorise the team to start building. Each section is a discipline — short, specific, and defensible.",
+    fields:[
+      { label:"Context", hint:"One paragraph. Domain, stakeholders, gap, why now. More than a paragraph means it hasn't been synthesised yet.", ex:"e.g. TRIARQ's referral module uses HL7 batch processing that doesn't meet CMS-0057-F requirements. Three payer integrations are non-compliant. Penalty exposure starts Q2." },
+      { label:"Question", hint:"One sentence. Specific enough to be wrong. If it can't be wrong, it's too vague.", ex:"e.g. What is the minimum change to the referral submission pathway that achieves FHIR PAS conformance for three non-compliant payers before Q2 2026?" },
+      { label:"Reduce", hint:"What you considered AND what you cut, with a reason for each cut. Describing only the chosen approach means this section isn't done.", ex:"e.g. Full rewrite — rejected, timeline. Vendor middleware — rejected, BAA risk. FHIR facade — accepted." },
+      { label:"Simplify", hint:"The answer in one sentence. If you need caveats, Reduce didn't narrow enough.", ex:"e.g. Implement a FHIR R4 facade on the existing submission pathway, scoped to three payers, validated in CI." },
+      { label:"Automate", hint:"Yes, Partial, or No — which parts can tooling handle and which need a human.", ex:"e.g. Partial. FHIR validation: automated. Payer mapping: templated, human reviews edge cases. Clinical completeness: human judgment." },
+    ],
+    tip:"The reviewer isn't editing your writing — they're deciding whether the thinking is complete enough to start spending build time.",
+    relation:"Once the Context Brief is approved, it feeds into the PRD and the Technical Spec. Don't start either until the Brief is signed off."
+  },
+  {
+    icon:"📋", name:"PRD", when:"After the Brief",
+    color:"#D97706", light:"#FEF3C7",
+    oneLiner:"Turns the direction from your Context Brief into a structured requirements document. What engineers and AI agents use to understand the intent behind the work.",
+    fields:[
+      { label:"Business objective", hint:"The outcome this delivers — for TRIARQ or its customers. Not a feature description. One sentence.", ex:"e.g. Reduce prior auth turnaround below 24hrs to meet CMS-0057-F Phase 1 requirements" },
+      { label:"Regulatory context", hint:"Which rules, standards, or deadlines apply. Determines how carefully the work is governed.", ex:"e.g. CMS-0057-F, ONC HTI-1, HIPAA Security Rule" },
+      { label:"Users and stakeholders", hint:"Who this is for and who has to approve or sign off. Named people where possible.", ex:"e.g. Referral coordinators (primary), Phil Reynolds (approver), Payers X/Y/Z (integration partners)" },
+      { label:"Requirements", hint:"What the solution must do. Numbered, specific, testable — not 'the system should be fast'.", ex:"e.g. 1. All PA requests validated against FHIR PAS IG v2.1 before transmission. 2. Rejected submissions return a structured error code." },
+      { label:"Success criteria", hint:"How you'll know it worked. Measurable, with a timeframe.", ex:"e.g. Zero CMS audit flags for FHIR non-conformance by Q3 2026." },
+      { label:"Out of scope", hint:"Explicit statement of what this PRD does NOT cover. As important as what it does cover.", ex:"e.g. Retrospective PA requests. Dental authorizations. Payers beyond the three named." },
+    ],
+    tip:"AI agents read your PRD to understand the 'why' behind the work. A vague PRD means the agent fills the gap with its own assumptions.",
+    relation:"The PRD is strategic — it doesn't describe how the work gets done. The Technical Specification handles that. Keep them separate."
+  },
+];
+
+let active = 0;
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = DOCS.map((d, i) => `
+    <div class="tab ${i===active?'active':''}" style="--c:${d.color}" onclick="setActive(${i})">
+      <span class="tab-icon">${d.icon}</span>
+      <span class="tab-name">${d.name}</span>
+      <span class="tab-when">${d.when}</span>
+    </div>
+  `).join("");
+}
+
+function renderPanel() {
+  const d = DOCS[active];
+  const fieldsHtml = d.fields.map(f => `
+    <div class="field">
+      <div class="field-label">${f.label}</div>
+      <div class="field-hint">${f.hint}</div>
+      <div class="field-ex">${f.ex}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("panel").innerHTML = `
+    <div class="panel" style="--pc:${d.color}">
+      <div class="one-liner">${d.oneLiner}</div>
+      <div class="section-title">What goes in it</div>
+      <div class="fields">${fieldsHtml}</div>
+      <div class="tip" style="background:${d.light};color:${d.color}">
+        <strong>💡 Keep in mind</strong>${d.tip}
+      </div>
+      <div class="relation"><strong>How it connects →</strong> ${d.relation}</div>
+    </div>
+  `;
+}
+
+function setActive(i) { active = i; renderTabs(); renderPanel(); }
+
+renderTabs();
+renderPanel();
+</script>
+</body>
+</html>
