@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TRIARQ AI-First Adoption Journey</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F9FAFB; min-height: 100vh; padding: 1rem; color: #111827; }
+  .container { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; font-weight: 700; text-align: center; color: #111827; }
+  .subtitle { font-size: 0.85rem; color: #6B7280; text-align: center; margin-top: 0.25rem; margin-bottom: 1.5rem; }
+  .timeline { display: flex; align-items: flex-start; margin-bottom: 2rem; }
+  .phase-btn-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .phase-btn { display: flex; flex-direction: column; align-items: center; background: none; border: none; cursor: pointer; width: 100%; padding: 0; }
+  .phase-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 4px solid; transition: transform 0.2s, background-color 0.2s; }
+  .phase-label { margin-top: 0.4rem; font-size: 0.7rem; font-weight: 700; }
+  .phase-name { font-size: 0.7rem; text-align: center; line-height: 1.3; }
+  .phase-dur { font-size: 0.65rem; color: #9CA3AF; margin-top: 2px; }
+  .connector { height: 2px; width: 2rem; flex-shrink: 0; background: #D1D5DB; margin-top: -1.5rem; }
+  .card { border-radius: 1rem; border: 2px solid; padding: 1.5rem; background: white; margin-bottom: 1rem; }
+  .card-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem; }
+  .card-title-row { display: flex; align-items: center; gap: 0.5rem; }
+  .card-icon { font-size: 2rem; }
+  .card-title { font-size: 1.2rem; font-weight: 700; color: #111827; }
+  .card-duration { font-size: 0.8rem; color: #6B7280; margin-top: 2px; }
+  .card-tagline { font-size: 0.85rem; font-style: italic; font-weight: 600; margin-top: 0.5rem; }
+  .badges { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
+  .badge { font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.75rem; border-radius: 999px; }
+  .badge-auto { background: #F3F4F6; color: #374151; }
+  .analogy-bar { border-radius: 0.5rem; padding: 0.5rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 500; }
+  .tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tab-btn { padding: 0.3rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.15s, color 0.15s; }
+  .tab-content { min-height: 12rem; }
+  ul.content-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  ul.content-list li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: #374151; }
+  .li-icon { flex-shrink: 0; margin-top: 1px; font-weight: 700; }
+  .exit-note { font-size: 0.72rem; color: #6B7280; font-style: italic; margin-bottom: 0.6rem; }
+  .checkbox { width: 1.1rem; height: 1.1rem; border-radius: 3px; border: 2px solid; flex-shrink: 0; margin-top: 1px; }
+  .roles-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .role-row { display: flex; gap: 0.75rem; align-items: flex-start; }
+  .role-tag { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+  .role-name { font-size: 0.75rem; font-weight: 600; color: #1F2937; }
+  .role-desc { font-size: 0.75rem; color: #6B7280; }
+  .nav { display: flex; justify-content: space-between; align-items: center; }
+  .nav-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; background: white; border: 1px solid #E5E7EB; color: #4B5563; cursor: pointer; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn:not(:disabled):hover { background: #F9FAFB; }
+  .nav-count { font-size: 0.75rem; color: #9CA3AF; }
+  .footer { text-align: center; font-size: 0.7rem; color: #9CA3AF; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const phases = [
+  {
+    id: 1, label: "Phase 1", name: "Assistive Coding", duration: "0–6 months",
+    tagline: "Humans write all code. AI suggests.",
+    color: "#2563EB", lightColor: "#DBEAFE", borderColor: "#93C5FD", icon: "🧱",
+    analogy: "AI as co-pilot — you hold the controls",
+    risk: "Low", autonomy: "None",
+    riskClass: "risk-low",
+    what: ["Code completion & suggestions via Cursor","AI-assisted test generation (human reviews all)","Documentation drafting support","Code review assistance","No autonomous commits — ever"],
+    governance: ["AGENTS.md / CLAUDE.md authored for all key repos","Layer 1 & 2 OPA policies drafted and tested","PHI Data Inventory populated","Agent Registry set up (Phil as owner)","BigQuery + Google SecOps telemetry baseline begins","Emergency shutdown mechanism designed & tested"],
+    exits: ["6 months of telemetry baseline established","AGENTS.md complete & validated for all production repos","Policy Registry authored and tested","AI Platform Team (Foundry) fully staffed","Emergency shutdown mechanism live and tested","Board-level reporting model piloted"],
+    roles: [["Phil (EVP P&G)","Phil","AI Governance Lead — documents authority formally in the OS"],["Pravin (VP Platform)","Pravin","Leads EMR architecture assessment; audit logging infrastructure"],["Sagar (Foundry Leader)","Sagar","Stands up Foundry team; governs Cursor usage standards"],["Capability Builders","CBs","Use AI assistance; author AGENTS.md for their domains"]],
+  },
+  {
+    id: 2, label: "Phase 2", name: "Guarded Autonomy", duration: "6–18 months",
+    tagline: "Agents execute bounded tasks. Humans approve at gates.",
+    color: "#7C3AED", lightColor: "#EDE9FE", borderColor: "#C4B5FD", icon: "🔒",
+    analogy: "AI as junior engineer — supervised, bounded, gated",
+    risk: "Medium", autonomy: "Tier 1–2 domains only",
+    what: ["Agents execute Tier 1–2 domain tasks autonomously","Automated test generation and execution","Full CI/CD constraint enforcement active","Risk score calculated per PR — gates enforce it","Single-agent only — no multi-agent campaigns yet"],
+    governance: ["All 5 constraint layers enforced (Layers 1–4 complete; Layer 5 via Tech Spec)","Tier 2+ changes require Phil approval gate (48–72hr SLA)","Risk score gating: score <75 auto-merge; 76–100 manual compliance review","Monthly AI Governance Board review active","AST-based audit bypass detection in CI pipeline","Feature flags required for all Tier 3 domain deployments"],
+    exits: ["90%+ constraint compliance rate sustained","Zero unreviewed PHI boundary violations","Risk score distribution stable","Principal Engineers trained on arbitration role","3+ successful Tier 3 delivery cycles completed cleanly"],
+    roles: [["Phil (EVP P&G)","Phil","Approval gate authority for Tier 2+ (48–72hr SLA); AI Governance Board chair"],["Pravin (VP Platform)","Pravin","CI/CD enforcement pipeline; runtime monitoring infrastructure"],["Sagar (Foundry Leader)","Sagar","Agent provisioning; session telemetry; Foundry operations"],["Capability Builders","CBs","Task specification authors; Tier 2 approval gate reviewers"]],
+  },
+  {
+    id: 3, label: "Phase 3", name: "Governed Multi-Agent", duration: "18–36 months",
+    tagline: "Cross-domain campaigns. Code Planner Agent orchestrates.",
+    color: "#059669", lightColor: "#D1FAE5", borderColor: "#6EE7B7", icon: "🕸️",
+    analogy: "AI as engineering team — orchestrated, verified, compliance-guarded",
+    risk: "High (managed)", autonomy: "Cross-domain with human gates",
+    what: ["Code Planner Agent decomposes cross-domain campaigns","Coding Agents + Validator Agents + Compliance Guard Agents active","Persistent Memory Store (Delivery Cycle records) manages campaign state","CMS/ONC regulatory updates executed via multi-agent campaigns","Rollback points at every major sub-task boundary"],
+    governance: ["All multi-agent campaigns pre-authorized by Principal Engineer","Code Compliance Guard Agent runs in parallel with all coding agents","Cross-domain operations require Principal Engineer review","Board-level AI governance dashboard live","PHI boundary violations: zero tolerance — zero in prior 6 months required","Per-incident 72hr review + 30-day constraint refinement cycle in force"],
+    exits: ["Min. 3 successful multi-agent campaigns completed","Rollback mechanism tested in staging","Zero PHI boundary violations in prior 6 months","CISO sign-off on Phase 4 readiness","Clinical safety review passed","Board Technology Committee authorises Phase 4"],
+    roles: [["Phil (EVP P&G)","Phil","Campaign pre-authorization; AI Governance Board escalations"],["Pravin (VP Platform)","Pravin","Persistent Memory Store; orchestration infrastructure"],["Sagar (Foundry Leader)","Sagar","Multi-agent campaign design; Compliance Guard Agent config"],["Capability Builders","CBs","Sub-task approvers; domain arbiters for conflicts"]],
+  },
+  {
+    id: 4, label: "Phase 4", name: "Runtime Adaptive AI", duration: "36+ months",
+    tagline: "AI adapts within governed boundaries. Board-authorized.",
+    color: "#D97706", lightColor: "#FEF3C7", borderColor: "#FCD34D", icon: "🚀",
+    analogy: "AI as system — governed, adaptive, clinically integrated",
+    risk: "Highest (fully governed)", autonomy: "Runtime adaptive within hard boundaries",
+    what: ["Adaptive clinical decision support delivered by runtime agents","AI-powered care management recommendations (human-in-loop for clinical paths)","Runtime policy optimization recommendations (not execution)","SOC 2 Type II certification for AI systems","Constraints adapt based on demonstrated agent performance history"],
+    governance: ["Every adaptive behavior change requires compliance review","Human-in-the-loop mandatory for all clinical recommendation pathways","CISO sign-off required for any new adaptive capability","Board Technology Committee authorization for Phase 4 entry (not time-gated)","Highest governance posture — no relaxation of compliance controls","Annual board AI governance posture review"],
+    exits: ["Not time-gated — advancement is earned, not scheduled","Requires demonstrated Phase 3 maturity across multiple domains","CISO sign-off","Clinical safety review","Board Technology Committee authorization"],
+    roles: [["Phil (EVP P&G)","Phil","AI Governance Board chair; adaptive capability approvals"],["Pravin (VP Platform)","Pravin","Runtime agent infrastructure; SOC 2 Type II program"],["Sagar (Foundry Leader)","Sagar","Runtime agent design; clinical integration architecture"],["Capability Builders","CBs","Domain-specific clinical pathway review; adaptive constraint authoring"]],
+  },
+];
+
+const riskStyle = { Low:"background:#DBEAFE;color:#1E40AF", Medium:"background:#EDE9FE;color:#5B21B6", "High (managed)":"background:#D1FAE5;color:#065F46", "Highest (fully governed)":"background:#FEF3C7;color:#92400E" };
+const tabs = ["What changes","Governance","Exit criteria","Roles"];
+
+function App() {
+  const [active, setActive] = useState(1);
+  const [tab, setTab] = useState("What changes");
+  const p = phases[active - 1];
+
+  return (
+    <div className="container">
+      <h1>TRIARQ AI-First Adoption Journey</h1>
+      <p className="subtitle">Select a phase to explore what it means for your work</p>
+
+      {/* Timeline */}
+      <div className="timeline">
+        {phases.map((ph, i) => (
+          <React.Fragment key={ph.id}>
+            <div className="phase-btn-wrap">
+              <button className="phase-btn" onClick={() => { setActive(ph.id); setTab("What changes"); }}>
+                <div className="phase-circle" style={{
+                  backgroundColor: active === ph.id ? ph.color : ph.lightColor,
+                  borderColor: active === ph.id ? ph.color : ph.borderColor,
+                  transform: active === ph.id ? "scale(1.15)" : "scale(1)"
+                }}>{ph.icon}</div>
+                <span className="phase-label" style={{ color: active === ph.id ? ph.color : "#6B7280" }}>{ph.label}</span>
+                <span className="phase-name" style={{ color: active === ph.id ? ph.color : "#9CA3AF" }}>{ph.name}</span>
+                <span className="phase-dur">{ph.duration}</span>
+              </button>
+            </div>
+            {i < phases.length - 1 && <div className="connector" />}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Card */}
+      <div className="card" style={{ borderColor: p.color }}>
+        <div className="card-header">
+          <div>
+            <div className="card-title-row">
+              <span className="card-icon">{p.icon}</span>
+              <div>
+                <div className="card-title">{p.label}: {p.name}</div>
+                <div className="card-duration">{p.duration}</div>
+              </div>
+            </div>
+            <div className="card-tagline" style={{ color: p.color }}>"{p.tagline}"</div>
+          </div>
+          <div className="badges">
+            <span className="badge" style={Object.fromEntries(riskStyle[p.risk].split(";").map(s => { const [k,v]=s.split(":"); return [k.trim().replace(/-([a-z])/g,(_,c)=>c.toUpperCase()), v?.trim()]; }))}> Risk: {p.risk}</span>
+            <span className="badge badge-auto">Autonomy: {p.autonomy}</span>
+          </div>
+        </div>
+
+        <div className="analogy-bar" style={{ backgroundColor: p.lightColor, color: p.color }}>
+          🔍 Mental model: <strong>{p.analogy}</strong>
+        </div>
+
+        <div className="tabs">
+          {tabs.map(t => (
+            <button key={t} className="tab-btn" onClick={() => setTab(t)}
+              style={tab === t ? { backgroundColor: p.color, color: "white" } : { backgroundColor: "#F3F4F6", color: "#374151" }}>
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="tab-content">
+          {tab === "What changes" && (
+            <ul className="content-list">
+              {p.what.map((item, i) => (
+                <li key={i}><span className="li-icon" style={{ color: p.color }}>→</span>{item}</li>
+              ))}
+            </ul>
+          )}
+          {tab === "Governance" && (
+            <ul className="content-list">
+              {p.governance.map((item, i) => (
+                <li key={i}><span className="li-icon" style={{ color: p.color }}>✓</span>{item}</li>
+              ))}
+            </ul>
+          )}
+          {tab === "Exit criteria" && (
+            <div>
+              <p className="exit-note">All criteria must be met before advancing to the next phase.</p>
+              <ul className="content-list">
+                {p.exits.map((item, i) => (
+                  <li key={i}><span className="checkbox" style={{ borderColor: p.color }}></span>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {tab === "Roles" && (
+            <div className="roles-list">
+              {p.roles.map(([name, tag, desc]) => (
+                <div key={name} className="role-row">
+                  <span className="role-tag" style={{ backgroundColor: p.lightColor, color: p.color }}>{tag}</span>
+                  <div>
+                    <div className="role-name">{name}</div>
+                    <div className="role-desc">{desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="nav">
+        <button className="nav-btn" disabled={active === 1} onClick={() => { setActive(active - 1); setTab("What changes"); }}>← Previous phase</button>
+        <span className="nav-count">{active} of 4</span>
+        <button className="nav-btn" disabled={active === 4} onClick={() => { setActive(active + 1); setTab("What changes"); }}>Next phase →</button>
+      </div>
+      <p className="footer">TRIARQ Health · AI-First Blueprint · Confidential · March 2026</p>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
